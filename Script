@@ -1,0 +1,37 @@
+-- Define GUI properties
+local gui = script.Parent -- Assuming the script is inside the GUI object
+local dragInput
+local dragStart
+local startPos
+
+-- Function to handle mouse input
+local function update(input)
+    local delta = input.Position - dragStart
+    gui.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+-- Connect mouse input events
+gui.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragStart = input.Position
+        startPos = gui.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragInput = nil
+            end
+        end)
+    end
+end)
+
+gui.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement then
+        dragInput = input
+    end
+end)
+
+-- Update GUI position while dragging
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+    if dragInput == input and input.UserInputType == Enum.UserInputType.MouseMovement then
+        update(input)
+    end
+end)

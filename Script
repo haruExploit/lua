@@ -35,3 +35,58 @@ game:GetService("UserInputService").InputChanged:Connect(function(input)
         update(input)
     end
 end)
+-- Create a ScreenGui to hold the GUI elements
+local gui = Instance.new("ScreenGui")
+gui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+-- Create a Frame to act as the draggable window
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 200, 0, 100)  -- Set the initial size of the frame
+frame.Position = UDim2.new(0.5, -100, 0.5, -50)  -- Set the initial position of the frame (centered)
+frame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)  -- Set the background color
+frame.BorderSizePixel = 0  -- Remove border
+frame.Active = true  -- Make the frame interactable
+frame.Parent = gui
+
+-- Function to handle dragging of the frame
+local dragging
+frame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        local initialPosition = frame.Position
+        local initialMousePosition = input.Position
+        
+        -- Function to update frame position while dragging
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+        
+        game:GetService("UserInputService").InputChanged:Connect(function(input2)
+            if input2.UserInputType == Enum.UserInputType.MouseMovement and dragging then
+                local delta = input2.Position - initialMousePosition
+                frame.Position = UDim2.new(initialPosition.X.Scale, initialPosition.X.Offset + delta.X, initialPosition.Y.Scale, initialPosition.Y.Offset + delta.Y)
+            end
+        end)
+    end
+end)
+
+-- Function to handle releasing the mouse button
+frame.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = false
+    end
+end)
+
+-- Create a button inside the frame
+local button = Instance.new("TextButton")
+button.Size = UDim2.new(0, 100, 0, 50)  -- Set the size of the button
+button.Position = UDim2.new(0.5, -50, 0.75, -25)  -- Set the position of the button (centered horizontally, 25 pixels from the bottom)
+button.Text = "Click Me!"  -- Set the text of the button
+button.Parent = frame
+
+-- Function to handle button click
+button.MouseButton1Click:Connect(function()
+    print("Button clicked!")
+end)
